@@ -335,14 +335,14 @@ Abre 3 pestañas de tu terminal WSL (Ubuntu) y sigue estos pasos.
 ==============================
 Esta terminal se encarga de construir las imágenes y levantar Kubernetes.
 
-# 1. Inicia Minikube (Solo si no está corriendo)
+### 1. Inicia Minikube (Solo si no está corriendo)
 minikube start --driver=docker
 
-# 2. Ejecuta el script de instalación (Sin permisos previos)
-# Usamos 'bash' directamente para evitar el error de permisos en Windows
+### 2. Ejecuta el script de instalación (Sin permisos previos)
+### Usamos 'bash' directamente para evitar el error de permisos en Windows
 bash setup.sh
 
-# 3. Verifica que los 4 pods estén en estado "Running"
+### 3. Verifica que los 4 pods estén en estado "Running"
 kubectl get pods
 
 
@@ -352,7 +352,7 @@ kubectl get pods
 Aquí abrimos los túneles para conectar Windows con el clúster.
 Si el comando con & te da problemas, abre una 4ta pestaña y ejecuta uno en cada una.
 
-# Exponemos el Frontend (Puerto 8000) y el Backend (Puerto 8080) a la vez
+### Exponemos el Frontend (Puerto 8000) y el Backend (Puerto 8080) a la vez
 kubectl port-forward service/frontend-svc 8000:80 &
 kubectl port-forward service/receiver-svc 8080:8080
 
@@ -365,7 +365,7 @@ Si necesitas cancelarlo, usa Ctrl + C)
 ==============================
 Esta terminal es para mostrarle al profesor que el sistema funciona.
 
-# Dejamos corriendo los logs del Auditor (el último nodo del anillo)
+### Dejamos corriendo los logs del Auditor (el último nodo del anillo)
 kubectl logs -f -l app=auditor
 
 
