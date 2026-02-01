@@ -1,0 +1,36 @@
+# Servicio para Nodo B (Interno)
+apiVersion: v1
+kind: Service
+metadata:
+  name: processor-svc
+spec:
+  selector:
+    app: processor
+  ports:
+    - port: 5000
+      targetPort: 5000
+---
+# Servicio para Nodo C (Interno)
+apiVersion: v1
+kind: Service
+metadata:
+  name: auditor-svc
+spec:
+  selector:
+    app: auditor
+  ports:
+    - port: 5000
+      targetPort: 5000
+---
+# Servicio para Nodo A (Externo - NodePort o LoadBalancer)
+apiVersion: v1
+kind: Service
+metadata:
+  name: receiver-svc
+spec:
+  type: LoadBalancer # Para acceder desde tu navegador
+  selector:
+    app: receiver
+  ports:
+    - port: 8080
+      targetPort: 5000

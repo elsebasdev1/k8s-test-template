@@ -1,0 +1,76 @@
+# --- RECEIVER (A) ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: receiver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: receiver
+  template:
+    metadata:
+      labels:
+        app: receiver
+    spec:
+      containers:
+      - name: receiver
+        image: receiver:v1 # Imagen local
+        imagePullPolicy: Never
+        ports: [{containerPort: 5000}]
+        env:
+        - name: NEXT_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: RECEIVER_NEXT_HOP
+
+---
+# --- PROCESSOR (B) ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: processor
+spec:
+  [cite_start]replicas: 1 # Puedes escalar esto para demostrar High Availability [cite: 39]
+  selector:
+    matchLabels:
+      app: processor
+  template:
+    metadata:
+      labels:
+        app: processor
+    spec:
+      containers:
+      - name: processor
+        image: processor:v1
+        imagePullPolicy: Never
+        ports: [{containerPort: 5000}]
+        env:
+        - name: NEXT_SERVICE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: PROCESSOR_NEXT_HOP
+
+---
+# --- AUDITOR (C) ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auditor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auditor
+  template:
+    metadata:
+      labels:
+        app: auditor
+    spec:
+      containers:
+      - name: auditor
+        image: auditor:v1
+        imagePullPolicy: Never
+        ports: [{containerPort: 5000}]

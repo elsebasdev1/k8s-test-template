@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # Nodo A llama a B
+  RECEIVER_NEXT_HOP: "http://processor-svc:5000"
+  # Nodo B llama a C
+  PROCESSOR_NEXT_HOP: "http://auditor-svc:5000"
