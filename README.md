@@ -104,6 +104,9 @@ docker build -t processor:v1 ./apps/processor
 
 # 3. Nodo C (Auditor/Log)
 docker build -t auditor:v1 ./apps/auditor
+
+# 4. Frontend (Interfaz Web)
+docker build -t frontend:v1 ./apps/frontend
 ```
 
 Verificación:
@@ -322,3 +325,64 @@ kubectl get pods -w
   - o `Service type: NodePort / LoadBalancer`
 **Solución:**  
 Revisar `k8s/01-config.yaml` y `k8s/02-services.yaml`.
+
+## ⚡ GUÍA DE EJECUCIÓN (EL DÍA DEL EXAMEN)
+
+Abre 3 pestañas de tu terminal WSL (Ubuntu) y sigue estos pasos.
+
+==============================
+🖥️ TERMINAL 1: EL DESPLIEGUE (SETUP)
+==============================
+Esta terminal se encarga de construir las imágenes y levantar Kubernetes.
+
+# 1. Inicia Minikube (Solo si no está corriendo)
+minikube start --driver=docker
+
+# 2. Ejecuta el script de instalación (Sin permisos previos)
+# Usamos 'bash' directamente para evitar el error de permisos en Windows
+bash setup.sh
+
+# 3. Verifica que los 4 pods estén en estado "Running"
+kubectl get pods
+
+
+==============================
+🖥️ TERMINAL 2: EL ACCESO (PORT FORWARD)
+==============================
+Aquí abrimos los túneles para conectar Windows con el clúster.
+Si el comando con & te da problemas, abre una 4ta pestaña y ejecuta uno en cada una.
+
+# Exponemos el Frontend (Puerto 8000) y el Backend (Puerto 8080) a la vez
+kubectl port-forward service/frontend-svc 8000:80 &
+kubectl port-forward service/receiver-svc 8080:8080
+
+(Mantén esta terminal abierta y no la cierres.
+Si necesitas cancelarlo, usa Ctrl + C)
+
+
+==============================
+🖥️ TERMINAL 3: EVIDENCIA (LOGS)
+==============================
+Esta terminal es para mostrarle al profesor que el sistema funciona.
+
+# Dejamos corriendo los logs del Auditor (el último nodo del anillo)
+kubectl logs -f -l app=auditor
+
+
+==============================
+🏁 CÓMO PRESENTAR LA PRUEBA
+==============================
+
+Abre tu navegador en Windows:
+http://localhost:8000
+
+Formulario:
+ID: ExamenFinal
+Valor: 10 (Si es par, se multiplica. Si es impar, suma 1)
+
+Ejecutar:
+Clic en "Iniciar Ciclo"
+
+Verificar:
+- Navegador: JSON final con el array audit lleno
+- Terminal 3: CICLO COMPLETADO: {...}
