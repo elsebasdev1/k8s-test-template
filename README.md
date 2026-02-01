@@ -201,5 +201,124 @@ kubectl logs <nombre-del-pod>
 **Causa:**  
 Nombre incorrecto del Service en ConfigMap.
 
+---
+
+## 🪟 INSTALACIÓN EN WINDOWS (MODO GRÁFICO – SIN WSL)
+
+Esta opción es para usuarios que **NO quieren usar WSL ni terminal Linux**.  
+Todo se instala mediante **instaladores `.exe`** en Windows.
+
+---
+
+### 1. Instalar Docker Desktop (Incluye Kubernetes)
+
+Docker Desktop para Windows **ya incluye Kubernetes**, por lo que **no necesitas Minikube** en este modo.
+
+#### Pasos:
+
+1. Descarga Docker Desktop desde el sitio oficial:  
+   https://www.docker.com/products/docker-desktop/
+
+2. Ejecuta el instalador `.exe`
+
+3. Durante la instalación:
+   - ✅ Deja activada la opción **"Use WSL 2 instead of Hyper-V"** (recomendado)
+   - (Si no tienes WSL, Docker Desktop lo instalará automáticamente)
+
+4. Reinicia Windows si el instalador lo solicita
+
+5. Abre **Docker Desktop** y espera a que esté en estado **Running**
+
+---
+
+### 2. Activar Kubernetes en Docker Desktop
+
+1. Abre **Docker Desktop**
+2. Ve a **Settings**
+3. En el menú lateral, selecciona **Kubernetes**
+4. Marca la opción:
+   - ✅ **Enable Kubernetes**
+5. Haz clic en **Apply & Restart**
+6. Espera a que el clúster esté listo (puede tardar varios minutos)
+
+Cuando termine, verás el estado:
+> Kubernetes is running
+
+---
+
+### 3. Instalar kubectl (Windows .exe)
+
+Docker Desktop **puede instalar kubectl automáticamente**, pero si no:
+
+1. Descarga kubectl para Windows desde:  
+   https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/
+
+2. Descarga el archivo:
+   - `kubectl.exe`
+
+3. Copia `kubectl.exe` en una carpeta incluida en tu `PATH`, por ejemplo:
+   - `C:\Windows\System32`
+   - o `C:\Program Files\kubectl\` (agregando al PATH)
+
+4. Verifica instalación abriendo **PowerShell** o **CMD**:
+
+```powershell
+kubectl version --client
+```
+
+---
+
+### 4. Verificar acceso al clúster Kubernetes
+
+Docker Desktop configura automáticamente el contexto.
+
+Verifica con:
+
+```powershell
+kubectl get nodes
+```
+
+Resultado esperado:
+- 1 nodo en estado **Ready**
+- Nombre similar a `docker-desktop`
+
+---
+
+### 5. Construcción de imágenes (Docker Desktop)
+
+En este modo **NO necesitas** `minikube docker-env`.
+
+Docker Desktop ya expone su Docker Engine al sistema.
+
+Desde **PowerShell**, en la raíz del proyecto:
+
+```powershell
+docker build -t receiver:v1 ./apps/receiver
+docker build -t processor:v1 ./apps/processor
+docker build -t auditor:v1 ./apps/auditor
+```
+
+---
+
+### 6. Despliegue en Kubernetes (Docker Desktop)
+
+Aplica los manifiestos normalmente:
+
+```powershell
+kubectl apply -f k8s/
+kubectl get pods -w
+```
+
+---
+
+### 📝 Notas importantes para Windows GUI
+
+- ✅ **No se usa Minikube**
+- ✅ **No se usa WSL manualmente**
+- ✅ Kubernetes corre dentro de Docker Desktop
+- ⚠️ `minikube service` **NO aplica** aquí
+- Para exponer servicios, usa:
+  - `kubectl port-forward`
+  - o `Service type: NodePort / LoadBalancer`
 **Solución:**  
 Revisar `k8s/01-config.yaml` y `k8s/02-services.yaml`.
