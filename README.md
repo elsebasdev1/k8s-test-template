@@ -4,66 +4,91 @@ Este repositorio despliega una arquitectura de **3 Nodos (Microservicios)** cone
 
 ---
 
-## 🛠️ FASE 0: INSTALACIÓN DE HERRAMIENTAS (Máquina de Laboratorio)
+## 🛠️ FASE 0: INSTALACIÓN EN WINDOWS (WSL 2)
 
-Si la máquina está vacía, ejecuta estos bloques paso a paso.  
-*Nota: Se asume entorno Linux (Ubuntu/Debian/CentOS). Requiere permisos `sudo`.*
+*Ejecuta estos comandos DENTRO de tu terminal WSL (Ubuntu/Debian).*
 
-### 1. Instalar Docker
+### 1. Preparar dependencias (Vital para WSL)
+
+Minikube en WSL necesita `conntrack` para gestionar la red, o fallará al arrancar.
 
 ```bash
-# Actualizar e instalar básicos
 sudo apt-get update
-sudo apt-get install -y ca-certificates curl gnupg
+sudo apt-get install -y ca-certificates curl gnupg conntrack
+```
 
-# Instalar Docker Engine (Script oficial rápido)
+### 2. Instalar Docker Engine (En WSL)
+
+**Nota:**  
+Si ya tienes **Docker Desktop** instalado en Windows, puedes **saltar este paso** y solo asegurar que la opción  
+**"Use WSL 2 based engine"** esté activa en los settings de Docker Desktop.
+
+Si no tienes Docker Desktop, instálalo nativo en WSL:
+
+```bash
+# Instalar script oficial
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 
-# Dar permisos al usuario (Vital para no usar sudo con docker)
+# Dar permisos al usuario actual
 sudo usermod -aG docker $USER
 newgrp docker
+
+# ⚠️ EN WSL EL SERVICIO NO ARRANCA SOLO:
+sudo service docker start
 ```
 
-### 2. Instalar Kubectl (El control remoto)
+### 3. Instalar Kubectl & Minikube (Binarios Linux)
+
+Aunque estás en Windows, tu terminal WSL usa binarios de Linux.
 
 ```bash
-# Descargar binario
+# Kubectl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-
-# Instalar
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-# Verificar
-kubectl version --client
-```
-
-### 3. Instalar Minikube (El Clúster Local)
-
-```bash
-# Descargar e instalar
+# Minikube
 curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 sudo install minikube-linux-amd64 /usr/local/bin/minikube
-
-# Arrancar el clúster con driver Docker
-minikube start --driver=docker
 ```
 
 ---
 
-## ⚡ FASE 1: PREPARACIÓN DEL ENTORNO
+## ⚡ FASE 1: ARRANQUE Y ENTORNO
 
-⚠️ **PASO CRÍTICO**  
-Debemos conectar nuestra terminal al Docker que vive **DENTRO** de Minikube.  
-Si no haces esto, Kubernetes no encontrará las imágenes que construyas.
+### 1. Iniciar el Clúster
+
+En WSL, a veces es necesario forzar el driver de Docker explícitamente y asegurar permisos si hay problemas de cgroups.
+
+```bash
+# Asegúrate que el demonio de docker corre
+sudo service docker status
+# Si dice "not running", ejecuta:
+sudo service docker start
+
+# Iniciar Minikube
+minikube start --driver=docker
+```
+
+### 2. Conectar Shell (CRÍTICO)
+
+Este paso es igual que en Linux puro, pero **fundamental**.
 
 ```bash
 eval $(minikube docker-env)
 ```
 
-(Si usas otra shell como Fish: `minikube docker-env | source`)
+### 📝 Resumen de cambios hechos para WSL
 
----
+1. **Dependencia `conntrack`:**  
+   Agregada. Sin esto, Minikube en WSL falla por red.
+
+2. **Servicio Docker:**  
+   Uso de `sudo service docker start` en lugar de `systemctl`, más compatible con WSL.
+
+3. **Nota Docker Desktop:**  
+   Se aclara que si se usa Docker Desktop con WSL 2, se puede omitir la instalación de Docker en WSL.
+
 
 ## 🏗️ FASE 2: CONSTRUCCIÓN (BUILD)
 
