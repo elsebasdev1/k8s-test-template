@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: receiver
-        image: receiver:v1 # Imagen local
+        image: receiver:v1
         imagePullPolicy: Never
         ports: [{containerPort: 5000}]
         env:
@@ -24,6 +24,13 @@ spec:
             configMapKeyRef:
               name: app-config
               key: RECEIVER_NEXT_HOP
+        # --- HEALTH CHECK (Auto-Recuperación) ---
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
 
 ---
 # --- PROCESSOR (B) ---
@@ -32,7 +39,7 @@ kind: Deployment
 metadata:
   name: processor
 spec:
-  [cite_start]replicas: 1 # Puedes escalar esto para demostrar High Availability [cite: 39]
+  replicas: 1
   selector:
     matchLabels:
       app: processor
@@ -52,6 +59,16 @@ spec:
             configMapKeyRef:
               name: app-config
               key: PROCESSOR_NEXT_HOP
+        # Variable para Redis (Necesaria para persistencia y modo colas)
+        - name: REDIS_HOST
+          value: "redis-svc"
+        # --- HEALTH CHECK ---
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
 
 ---
 # --- AUDITOR (C) ---
@@ -74,3 +91,32 @@ spec:
         image: auditor:v1
         imagePullPolicy: Never
         ports: [{containerPort: 5000}]
+        env:
+        # Credenciales de Postgres (Desde Secrets - Más seguro)
+        - name: PG_PASS
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: pg-password
+        - name: PG_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: pg-user
+        - name: PG_DB
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: pg-db
+        - name: PG_HOST
+          value: "postgres-svc"
+        # Variable para Redis (Necesaria si activas el modo Worker/Colas)
+        - name: REDIS_HOST
+          value: "redis-svc"
+        # --- HEALTH CHECK ---
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 15 # Damos más tiempo al Auditor para conectar a BD
+          periodSeconds: 5
