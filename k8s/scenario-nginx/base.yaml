@@ -1,0 +1,34 @@
+# 1. Creación del Deployment (nginxdemos/hello)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-exam
+spec:
+  replicas: 1 # Punto 1: Un único pod inicial
+  selector:
+    matchLabels:
+      app: nginx-exam
+  template:
+    metadata:
+      labels:
+        app: nginx-exam
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginxdemos/hello:latest # Punto 1: Imagen solicitada
+        ports:
+        - containerPort: 80
+
+---
+# 2. Exposición inicial (ClusterIP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  type: ClusterIP # Punto 2: Inicialmente ClusterIP
+  selector:
+    app: nginx-exam
+  ports:
+    - port: 80
+      targetPort: 80
