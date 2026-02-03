@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  # EN MODO PÁNICO:
+  # Usamos 'host.minikube.internal' para salir del Pod hacia Windows
+  # y entrar por el puerto que abriste con kubectl port-forward.
+  
+  # Receiver llama a Processor (en tu puerto 8081)
+  RECEIVER_NEXT_HOP: "http://host.minikube.internal:8081"
+  
+  # Processor llama a Auditor (en tu puerto 8082)
+  PROCESSOR_NEXT_HOP: "http://host.minikube.internal:8082"

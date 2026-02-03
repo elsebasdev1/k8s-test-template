@@ -1,3 +1,16 @@
+# 1. El Reclamo de Espacio (PVC)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# 2. La Base de Datos
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,12 +27,32 @@ spec:
       containers:
       - name: postgres
         image: postgres:15-alpine
+        ports: [{containerPort: 5432}]
+        # Inyectamos secretos en vez de texto plano
         env:
         - name: POSTGRES_PASSWORD
-          value: "123456"
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: pg-password
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: pg-user
         - name: POSTGRES_DB
-          value: "auditor_db"
-        ports: [{containerPort: 5432}]
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: pg-db
+        # Montamos el volumen persistente
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: postgres-pvc
 ---
 apiVersion: v1
 kind: Service

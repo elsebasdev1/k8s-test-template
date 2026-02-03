@@ -5,9 +5,9 @@ app = Flask(__name__)
 
 # Configuración de BD
 DB_HOST = os.getenv("PG_HOST", "postgres-svc")
-DB_PASS = os.getenv("PG_PASS", "123456")
-DB_NAME = "auditor_db"
-DB_USER = "postgres"
+DB_PASS = os.getenv("POSTGRES_PASSWORD", "default_inseguro")
+DB_USER = os.getenv("POSTGRES_USER", "postgres")
+DB_NAME = os.getenv("POSTGRES_DB", "auditor_db")
 
 def get_db_connection():
     conn = psycopg2.connect(host=DB_HOST, database=DB_NAME, user=DB_USER, password=DB_PASS)
