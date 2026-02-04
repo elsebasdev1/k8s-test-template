@@ -23,6 +23,8 @@ kubectl get deployments
 
 kubectl get service nginx-service
 
+kubectl run test-curl --image=curlimages/curl -i --tty --rm --restart=Never -- curl -v http://nginx-service
+
 7. Cambiar a nodeport
 
 kubectl edit service nginx-service
