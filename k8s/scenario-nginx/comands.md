@@ -29,6 +29,10 @@ kubectl run test-curl --image=curlimages/curl -i --tty --rm --restart=Never -- c
 
 kubectl edit service nginx-service
 
+or
+
+kubectl patch service nginx-service -p '{"spec": {"type": "NodePort"}}'
+
 cambiar type: ClusterIP por type: NodePort
 
 8. Tomar captura
