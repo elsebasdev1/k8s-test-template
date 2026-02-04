@@ -16,6 +16,7 @@ kubectl apply -f k8s/scenario-nginx/base.yaml
 5. Tomar captura
 
 kubectl get pods
+
 kubectl get deployments
 
 6. Verificar ClusterIP
@@ -25,6 +26,7 @@ kubectl get service nginx-service
 7. Cambiar a nodeport
 
 kubectl edit service nginx-service
+
 cambiar type: ClusterIP por type: NodePort
 
 8. Tomar captura
@@ -46,6 +48,7 @@ kubectl set image deployment/nginx-exam nginx-container=nginx:alpine
 12. Tomar captura
 
 kubectl rollout status deployment/nginx-exam
+
 kubectl describe pod -l app=nginx-exam | sls Image
 
 13. Volver a ejecutar para ver cambios
