@@ -22,3 +22,18 @@ kubectl logs -f -l app=auditor
 
 6.
 http://localhost:8000
+
+
+---
+
+En caso de guardar en archivos de texto
+
+# 1. Obtén el nombre del pod del auditor
+kubectl get pods
+
+# 2. Lee el archivo dentro del pod (reemplaza auditor-xxxx con el nombre real)
+# Para el Síncrono:
+kubectl exec auditor-5f88d8b9c-xyz -- cat auditor_logs.txt
+
+# Para el Asíncrono:
+kubectl exec auditor-5f88d8b9c-xyz -- cat worker_logs.txt
